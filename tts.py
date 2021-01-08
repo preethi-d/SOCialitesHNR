@@ -1,4 +1,5 @@
 import logging
+import os
 
 from telegram import InlineKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton
 from telegram import Update, InputFile
@@ -190,6 +191,11 @@ def main():
 
     # Start the Bot
     updater.start_polling()
+    #
+    # updater.start_webhook(listen="0.0.0.0",
+    #                       port=int(PORT),
+    #                       url_path=token)
+    # updater.bot.setWebhook('https://fast-meadow-54421.herokuapp.com/' + token)
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
