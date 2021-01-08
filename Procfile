@@ -1,1 +1,1 @@
-web: python3 tts.py
+app: python3 tts.py
