@@ -1,11 +1,12 @@
 import logging
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import InlineKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton
 from telegram import Update, InputFile
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, \
+    CallbackQueryHandler
 from gtts import gTTS
 
-token = "1590146552:AAHiUBLHNSWzknPRk0rxDV7Fsl5sl4GQuyU"
+token = "536454193:AAHTn7fdnu-XYW7ZrXu7eJQbkFgDutfldsE"
 
 raw_languages = """af: Afrikaans
 ar: Arabic
@@ -120,24 +121,27 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def lang_command(update: Update, context: CallbackContext) -> int:
     """Send a message when the command /lang is issues."""
-    reply_keyboard = [languages_names]
+    buttons = [InlineKeyboardButton(lang, callback_data=lang) for lang in languages_names]
+    keyboard = []
+    for i in range(0, len(buttons), 3):
+        keyboard.append(buttons[i:i+3])
     update.message.reply_text('Choose the language',
-                              reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+                              reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     global awaiting_choice
     awaiting_choice = True
 
 
 def set_language(update, new_lang):
-    if new_lang not in languages:
-        update.message.reply_text('Language {} not supported'.format(update.message.text),
-                                  reply_markup=ReplyKeyboardRemove())
-        return
-    logger.info("Language chosen: %s", new_lang)
-    update.message.reply_text('Language set to {}'.format(update.message.text),
-                              reply_markup=ReplyKeyboardRemove())
     global language, awaiting_choice
+
+    if new_lang not in languages:
+        awaiting_choice = False
+        return False
+
+    logger.info("Language chosen: %s", new_lang)
     language = languages[new_lang]
     awaiting_choice = False
+    return True
 
 
 def text_to_speech(update: Update, context: CallbackContext) -> None:
@@ -152,6 +156,16 @@ def text_to_speech(update: Update, context: CallbackContext) -> None:
     tts = gTTS(update.message.text, lang=language)
     tts.save("audio_message.ogg")
     update.message.reply_audio(open("audio_message.ogg", "rb"))
+
+
+def lang_callback(update: Update, context: CallbackContext) -> None:
+    new_lang = update.callback_query.data
+    print("setting new lang {}".format(new_lang))
+    success = set_language(update, new_lang)
+    if success:
+        update.callback_query.answer("Updated language to {}".format(new_lang))
+    else:
+        update.callback_query.answer("Failed to update language to {}".format(new_lang))
 
 
 def main():
@@ -169,6 +183,7 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command))
 
     dispatcher.add_handler(CommandHandler('lang', lang_command))
+    dispatcher.add_handler(CallbackQueryHandler(lang_callback))
 
     # on noncommand i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, text_to_speech))
