@@ -1,8 +1,10 @@
 import logging
 
-from telegram import Update
+from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from gtts import gTTS
+
+token = "1590146552:AAHiUBLHNSWzknPRk0rxDV7Fsl5sl4GQuyU"
 
 # Enable logging
 logging.basicConfig(
@@ -30,9 +32,10 @@ def echo(update: Update, context: CallbackContext) -> None:
 
 def text_to_speech(update: Update, context: CallbackContext) -> None:
     """Convert the user message to speech and send the audio message."""
+    print(update.message.text)
     tts = gTTS(update.message.text)
     tts.save("audio_message.ogg")
-    #update.sendVoice("audio_message.ogg")
+    update.message.reply_audio(open("audio_message.ogg", "rb"))
 
 
 def main():
@@ -40,7 +43,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("TOKEN", use_context=True)
+    updater = Updater(token, use_context=True)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
