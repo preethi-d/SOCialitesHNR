@@ -1,1 +1,1 @@
-app: python3 tts.py
+worker: python3 tts.py
