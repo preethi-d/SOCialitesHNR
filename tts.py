@@ -6,8 +6,6 @@ from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 from gtts import gTTS
 
-PORT = int(os.environ.get('PORT', 5000))
-
 token = "1590146552:AAHiUBLHNSWzknPRk0rxDV7Fsl5sl4GQuyU"
 
 raw_languages = """af: Afrikaans
