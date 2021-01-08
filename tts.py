@@ -1,9 +1,12 @@
 import logging
+import os
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 from gtts import gTTS
+
+PORT = int(os.environ.get('PORT', 5000))
 
 token = "1590146552:AAHiUBLHNSWzknPRk0rxDV7Fsl5sl4GQuyU"
 
@@ -174,7 +177,12 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, text_to_speech))
 
     # Start the Bot
-    updater.start_polling()
+    # updater.start_polling()
+
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=token)
+    updater.bot.setWebhook('https://fast-meadow-54421.herokuapp.com/' + token)
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
