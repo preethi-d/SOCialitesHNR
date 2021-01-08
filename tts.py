@@ -105,8 +105,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 language = 'en'
-awaiting_choice = False
-
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -128,31 +126,22 @@ def lang_command(update: Update, context: CallbackContext) -> int:
         keyboard.append(buttons[i:i+3])
     update.message.reply_text('Choose the language',
                               reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
-    global awaiting_choice
-    awaiting_choice = True
 
 
 def set_language(update, new_lang):
-    global language, awaiting_choice
+    global language
 
     if new_lang not in languages:
-        awaiting_choice = False
         return False
 
     logger.info("Language chosen: %s", new_lang)
     language = languages[new_lang]
-    awaiting_choice = False
     return True
 
 
 def text_to_speech(update: Update, context: CallbackContext) -> None:
     """Convert the user message to speech and send the audio message."""
     print(update.message.text)
-
-    global awaiting_choice
-
-    if awaiting_choice:
-        return set_language(update, update.message.text)
 
     tts = gTTS(update.message.text, lang=language)
     tts.save("audio_message.ogg")
