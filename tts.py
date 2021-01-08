@@ -7,7 +7,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
     CallbackQueryHandler
 from gtts import gTTS
 
-token = "536454193:AAHTn7fdnu-XYW7ZrXu7eJQbkFgDutfldsE"
+token = "1590146552:AAHiUBLHNSWzknPRk0rxDV7Fsl5sl4GQuyU"
 
 raw_languages = """af: Afrikaans
 ar: Arabic
