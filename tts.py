@@ -110,12 +110,12 @@ language = 'en'
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+    update.message.reply_text('Hi, welcome to TikTalk! Any messages you send to this bot will be converted to voice messages. Type /help for instructions')
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    update.message.reply_text('Type /lang to choose the accent of the voice. After that, enter your text!')
 
 
 def lang_command(update: Update, context: CallbackContext) -> int:
