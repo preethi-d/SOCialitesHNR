@@ -6,8 +6,11 @@ from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, \
     CallbackQueryHandler
 from gtts import gTTS
+from dotenv import load_dotenv
 
-token = "1590146552:AAHiUBLHNSWzknPRk0rxDV7Fsl5sl4GQuyU"
+load_dotenv()
+token = os.getenv("TOKEN")
+
 
 raw_languages = """af: Afrikaans
 ar: Arabic
@@ -91,6 +94,7 @@ zh-tw: Chinese (Mandarin/Taiwan)"""
 
 languages_names = []
 languages = {}
+language = 'en'
 
 for line in raw_languages.split("\n"):
     a, b = line.split(": ")
@@ -104,7 +108,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-language = 'en'
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -128,14 +131,15 @@ def lang_command(update: Update, context: CallbackContext) -> int:
                               reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
 
 
-def set_language(update, new_lang):
+def set_language(update, context, new_lang):
     global language
 
     if new_lang not in languages:
         return False
 
     logger.info("Language chosen: %s", new_lang)
-    language = languages[new_lang]
+    # language = languages[new_lang]
+    context.user_data["language"] = languages[new_lang]
     return True
 
 
@@ -143,15 +147,20 @@ def text_to_speech(update: Update, context: CallbackContext) -> None:
     """Convert the user message to speech and send the audio message."""
     print(update.message.text)
 
-    tts = gTTS(update.message.text, lang=language)
+    lang = language
+    if "language" in context.user_data:
+        lang = context.user_data["language"]
+
+    tts = gTTS(update.message.text, lang=lang)
     tts.save("audio_message.ogg")
-    update.message.reply_audio(open("audio_message.ogg", "rb"))
+    update.message.reply_audio(open("audio_message.ogg", "rb"), caption=lang)
 
 
 def lang_callback(update: Update, context: CallbackContext) -> None:
     new_lang = update.callback_query.data
+    print(context.user_data)
     print("setting new lang {}".format(new_lang))
-    success = set_language(update, new_lang)
+    success = set_language(update, context, new_lang)
     if success:
         update.callback_query.answer("Updated language to {}".format(new_lang))
     else:
